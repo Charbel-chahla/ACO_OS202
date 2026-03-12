@@ -2,7 +2,7 @@
 #include <iostream>
 #include "rand_generator.hpp"
 
-double ant::m_eps = 0.;
+double ant::m_eps = 0.; //si faible fourmi se deplace aleatoirement, si fort elle suit les pheronomes
 
 void ant::advance( pheronome& phen, const fractal_land& land, const position_t& pos_food, const position_t& pos_nest,
                    std::size_t& cpteur_food ) 
@@ -21,7 +21,7 @@ void ant::advance( pheronome& phen, const fractal_land& land, const position_t& 
                                      phen( new_pos_ant.x + 1, new_pos_ant.y )[ind_pher],
                                      phen( new_pos_ant.x, new_pos_ant.y - 1 )[ind_pher],
                                      phen( new_pos_ant.x, new_pos_ant.y + 1 )[ind_pher]} );
-        if ( ( choix > m_eps ) || ( max_phen <= 0. ) ) {
+        if ( ( choix > m_eps ) || ( max_phen <= 0. ) ) { // La fourmi choisit une direction aléatoire parmi celles qui ne sont pas marquées comme indésirables.
             do {
                 new_pos_ant = old_pos_ant;
                 int d = dir_choice();
@@ -39,7 +39,7 @@ void ant::advance( pheronome& phen, const fractal_land& land, const position_t& 
                 new_pos_ant.x += 1;
             else if ( phen( new_pos_ant.x, new_pos_ant.y - 1 )[ind_pher] == max_phen )
                 new_pos_ant.y -= 1;
-            else  // if (phen(new_pos_ant.first,new_pos_ant.second+1)[ind_pher] == max_phen)
+            else  
                 new_pos_ant.y += 1;
         }
         consumed_time += land( new_pos_ant.x, new_pos_ant.y);

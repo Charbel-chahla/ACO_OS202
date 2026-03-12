@@ -28,7 +28,7 @@ clean:
 ant_simu.exe : ant.o fractal_land.o renderer.o window.o ant_simu.o
 	$(CXX) $(CXXFLAGS2) $^ -o $@ $(LIB)	
 
-ant_simu_vec.exe : fractal_land.o ant_simu_vec.o
+ant_simu_vec.exe : fractal_land.o ant_vec.o ant_simu_vec.o
 	$(CXX) $(CXXFLAGS2) $^ -o $@ $(LIB)	
 
 ant_simu_omp.exe : fractal_land.o ant_simu_omp.o
