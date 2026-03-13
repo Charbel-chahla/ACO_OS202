@@ -76,7 +76,7 @@ static void advance_one_ant_aos(std::size_t idx,
         std::array<int, 4> ny{{y, y, y - 1, y + 1}};
         std::array<int, 4> valid{{0, 0, 0, 0}};
         std::array<double, 4> value{{-1., -1., -1., -1.}};
-        int valid_count = 0;
+        int valid_count = 0; 
 
         for (int k = 0; k < 4; ++k) {
             if (nx[k] < 0 || ny[k] < 0 || nx[k] >= dim || ny[k] >= dim) continue;

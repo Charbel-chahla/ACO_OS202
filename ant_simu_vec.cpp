@@ -17,7 +17,7 @@
 struct ants_soa {
     std::vector<int>          x;
     std::vector<int>          y;
-    std::vector<std::uint8_t> loaded;   // 0 = vide, 1 = chargée
+    std::vector<std::uint8_t> loaded;
     std::vector<std::size_t>  seed;
 };
 
@@ -81,9 +81,6 @@ static void advance_time_soa(ants_soa&           ants,
     timing.pheromone_update_s += elapsed_seconds(t2, t3);
 }
 
-// ---------------------------------------------------------------------------
-// main
-// ---------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
     const auto t_program_begin = sim_clock::now();
@@ -104,16 +101,10 @@ int main(int argc, char* argv[])
 
     timing_stats timing;
 
-    // =========================================================
-    // SETUP : génération du terrain
-    // =========================================================
     auto t0 = sim_clock::now();
     fractal_land land(8, 2, 1., 1024);
     timing.setup_land_generation_s = elapsed_seconds(t0, sim_clock::now());
 
-    // =========================================================
-    // SETUP : normalisation du terrain
-    // =========================================================
     t0 = sim_clock::now();
 
     double max_val = std::numeric_limits<double>::lowest();
@@ -137,9 +128,6 @@ int main(int argc, char* argv[])
 
     timing.setup_land_normalization_s = elapsed_seconds(t0, sim_clock::now());
 
-    // =========================================================
-    // SETUP : initialisation des fourmis (SoA)
-    // =========================================================
     t0 = sim_clock::now();
 
     ants_soa ants;
@@ -157,14 +145,8 @@ int main(int argc, char* argv[])
 
     timing.setup_ant_init_s = elapsed_seconds(t0, sim_clock::now());
 
-    // =========================================================
-    // SETUP : phéromones
-    // =========================================================
     pheronome phen(land.dimensions(), pos_food, pos_nest, alpha, beta);
 
-    // =========================================================
-    // BOUCLE PRINCIPALE
-    // =========================================================
     std::size_t food_quantity    = 0;
     bool        not_food_in_nest = true;
 
@@ -184,9 +166,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    // =========================================================
-    // RAPPORT DE TIMING
-    // =========================================================
     auto print_line = [&](const std::string& name, double total_s,
                           std::size_t iters) {
         const double per_ms =

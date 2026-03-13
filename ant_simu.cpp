@@ -17,20 +17,17 @@ void advance_time( const fractal_land& land, pheronome& phen,
 {
     using clock = std::chrono::high_resolution_clock;
 
-    // 1) déplacement des fourmis
     auto t0 = clock::now();
     for ( size_t i = 0; i < ants.size(); ++i )
         ants[i].advance(phen, land, pos_food, pos_nest, cpteur);
     auto t1 = clock::now();
     t_move += std::chrono::duration<double>(t1 - t0).count();
 
-    // 2) évaporation des phéromones
     auto t2 = clock::now();
     phen.do_evaporation();
     auto t3 = clock::now();
     t_evap += std::chrono::duration<double>(t3 - t2).count();
 
-    // 3) mise à jour des phéromones
     auto t4 = clock::now();
     phen.update();
     auto t5 = clock::now();
@@ -41,14 +38,9 @@ int main(int nargs, char* argv[])
 {
     using clock = std::chrono::high_resolution_clock;
 
-    // temps total du programme
     auto t_program_start = clock::now();
 
-    // --- SDL init (si tu veux le mesurer aussi, décommente)
-    // auto t_sdl0 = clock::now();
     SDL_Init( SDL_INIT_VIDEO );
-    // auto t_sdl1 = clock::now();
-    // double t_sdl_init = std::chrono::duration<double>(t_sdl1 - t_sdl0).count();
 
     std::size_t seed = 2026;
     const int nb_ants = 5000;
@@ -59,17 +51,11 @@ int main(int nargs, char* argv[])
     position_t pos_nest{256,256};
     position_t pos_food{500,500};
 
-    // ======================
-    // 1) INITIALISATION
-    // ======================
-
-    // génération terrain
     auto t0 = clock::now();
     fractal_land land(8,2,1.,1024);
     auto t1 = clock::now();
     double t_land_generation = std::chrono::duration<double>(t1 - t0).count();
 
-    // normalisation terrain
     t0 = clock::now();
 
     double max_val = 0.0;
@@ -91,7 +77,6 @@ int main(int nargs, char* argv[])
 
     ant::set_exploration_coef(eps);
 
-    // initialisation des fourmis
     t0 = clock::now();
 
     std::vector<ant> ants;
@@ -107,13 +92,11 @@ int main(int nargs, char* argv[])
     t1 = clock::now();
     double t_ant_init = std::chrono::duration<double>(t1 - t0).count();
 
-    // initialisation phéromones
     t0 = clock::now();
     pheronome phen(land.dimensions(), pos_food, pos_nest, alpha, beta);
     t1 = clock::now();
     double t_pheromone_init = std::chrono::duration<double>(t1 - t0).count();
 
-    // fenêtre + renderer (mesure simple, sans bidouiller)
     t0 = clock::now();
     Window win("Ant Simulation", 2*land.dimensions()+10, land.dimensions()+266);
     Renderer renderer( land, phen, pos_nest, pos_food, ants );
@@ -127,10 +110,6 @@ int main(int nargs, char* argv[])
     std::cout << "initialisation pheromones : " << t_pheromone_init << " s" << std::endl;
     std::cout << "init fenetre + renderer   : " << t_window_renderer_init << " s" << std::endl;
     std::cout << "=============================" << std::endl;
-
-    // ======================
-    // 2) BOUCLE SIMULATION
-    // ======================
 
     size_t food_quantity = 0;
 
@@ -154,12 +133,10 @@ int main(int nargs, char* argv[])
                 cont_loop = false;
         }
 
-        // move + evap + update
         advance_time( land, phen, pos_nest, pos_food,
                       ants, food_quantity,
                       t_move, t_evap, t_update );
 
-        // rendu
         auto r0 = clock::now();
         renderer.display( win, food_quantity );
         win.blit();
