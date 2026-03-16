@@ -110,7 +110,7 @@ static void advance_one_ant_aos(std::size_t idx,
         const double move_cost = std::max(land(new_pos.x, new_pos.y), 1E-12);
         consumed_time += move_cost;
 
-        local_marks.push_back(new_pos);
+        local_marks.push_back(new_pos); // Marquer la position pour le phéromone
         ants[idx].pos = new_pos;
 
         if (new_pos == pos_nest) {
@@ -134,16 +134,16 @@ static void advance_time_omp(std::vector<ant_aos>& ants,
 {
     auto t0 = sim_clock::now();
 
-    const int nthreads = omp_get_max_threads();
-    std::vector<std::vector<position_t>> marks_per_thread(nthreads);
+    const int nthreads = omp_get_max_threads(); // Récupérer le nombre de threads disponibles
+    std::vector<std::vector<position_t>> marks_per_thread(nthreads); 
     std::size_t food_delta = 0;
 
     #pragma omp parallel reduction(+:food_delta)
     {
-        const int tid = omp_get_thread_num();
-        auto& local_marks = marks_per_thread[tid];
-        local_marks.clear();
-        local_marks.reserve(256);
+        const int tid = omp_get_thread_num(); // Récupérer l'ID du thread
+        auto& local_marks = marks_per_thread[tid]; // Référence au vecteur de marquages local du thread
+        local_marks.clear(); // Assurer que le vecteur est vide avant de l'utiliser
+        local_marks.reserve(256); // Réserver de l'espace pour éviter les reallocations fréquentes
 
         std::size_t local_food = 0;
 
@@ -158,10 +158,10 @@ static void advance_time_omp(std::vector<ant_aos>& ants,
 
     auto t1 = sim_clock::now();
 
-    // marquage des pheromones : garde sequentiel pour eviter les races
-    for (const auto& vec : marks_per_thread) {
-        for (const auto& pos : vec) {
-            phen.mark_pheronome(pos);
+   
+    for (const auto& vec : marks_per_thread) { // Parcourir les marquages de chaque thread
+        for (const auto& pos : vec) {  // Marquer le phéromone pour chaque position marquée
+            phen.mark_pheronome(pos);// Marquage du phéromone pour la position donnée   
         }
     }
 
@@ -188,15 +188,15 @@ int main(int argc, char* argv[])
     std::size_t max_iterations = 5500;
     int num_threads = omp_get_max_threads();
 
-    if (argc >= 2) max_iterations = static_cast<std::size_t>(std::stoul(argv[1]));
-    if (argc >= 3) num_threads = std::stoi(argv[2]);
+    if (argc >= 2) max_iterations = static_cast<std::size_t>(std::stoul(argv[1])); 
+    if (argc >= 3) num_threads = std::stoi(argv[2]); 
 
     omp_set_num_threads(num_threads);
 
-    std::size_t seed = 2026;
+    std::size_t seed = 2026; // Seed pour la génération de nombres aléatoires
     const int nb_ants = 5000;
-    const double eps = 0.8;
-    const double alpha = 0.7;
+    const double eps = 0.8; // Probabilité d'exploration aléatoire
+    const double alpha = 0.7; // Poids du phéromone
     const double beta = 0.999;
 
     position_t pos_nest{256, 256};
@@ -211,13 +211,13 @@ int main(int argc, char* argv[])
 
     auto t_setup_norm_0 = sim_clock::now();
 
-    double max_val = std::numeric_limits<double>::lowest();
+    double max_val = std::numeric_limits<double>::lowest(); 
     double min_val = std::numeric_limits<double>::max();
 
-    #pragma omp parallel for collapse(2) reduction(max:max_val) reduction(min:min_val)
+    #pragma omp parallel for collapse(2) reduction(max:max_val) reduction(min:min_val) // Utilisation de reduction pour trouver les valeurs max et min en parallèle
     for (fractal_land::dim_t i = 0; i < land.dimensions(); ++i) {
-        for (fractal_land::dim_t j = 0; j < land.dimensions(); ++j) {
-            max_val = std::max(max_val, land(i, j));
+        for (fractal_land::dim_t j = 0; j < land.dimensions(); ++j) { 
+            max_val = std::max(max_val, land(i, j)); 
             min_val = std::min(min_val, land(i, j));
         }
     }
@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
     auto print_line = [](const std::string& name, double total_s, std::size_t iterations) {
         const double per_iter_ms =
             (iterations > 0) ? (1E3 * total_s / static_cast<double>(iterations)) : 0.;
-        std::cout << std::left << std::setw(28) << name
+        std::cout << std::left << std::setw(28) << name 
                   << " total=" << std::setw(12) << std::fixed << std::setprecision(6) << total_s << " s"
                   << "  per_iter=" << std::setw(12) << std::fixed << std::setprecision(6) << per_iter_ms << " ms"
                   << std::endl;
